@@ -1,0 +1,486 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GameController : MonoBehaviour
+{
+public int gold = 0;
+public int swordValue = 1;
+public int swordsPerSecond = 0;
+public Upgrade toolsUpgrade;
+public Upgrade spaceUpgrade;
+public Upgrade materialsUpgrade;
+
+public int forgingSkillLevel = 0;
+public int smeltingSkillLevel = 0;
+public int tradingSkillLevel = 0;
+
+public float rareMaterialsChance = 0.05f;
+public float epicMaterialsChance = 0.01f;
+public float legendaryMaterialsChance = 0.005f;
+public int rareMaterials = 0;
+public int epicMaterials = 0;
+public int legendaryMaterials = 0;
+
+public int buyAllCounter = 0;
+
+public Text goldText;
+public Text swordValueText;
+public Text swordsPerSecondText;
+public Text toolsUpgradeText;
+public Text spaceUpgradeText;
+public Text materialsUpgradeText;
+public Text forgingSkillText;
+public Text smeltingSkillText;
+public Text tradingSkillText;
+public Text rareMaterialsText;
+public Text epicMaterialsText;
+public Text legendaryMaterialsText;
+public Text buyAllText;
+
+private float swordsPerSecondTimer = 0f;
+
+public void Update()
+{
+    // Aktualizacja wartości tekstowych
+    goldText.text = "Gold: " + gold;
+    swordValueText.text = "Sword value: " + swordValue;
+    swordsPerSecondText.text = "Swords per second: " + swordsPerSecond;
+    toolsUpgradeText.text = "Tools upgrade (level " + toolsUpgrade.level + "): " + toolsUpgrade.cost + " gold";
+    spaceUpgradeText.text = "Space upgrade (level " + spaceUpgrade.level + "): " + spaceUpgrade.cost + " gold";
+    materialsUpgradeText.text = "Materials upgrade (level " + materialsUpgrade.level + "): " + materialsUpgrade.cost + " gold";
+    forgingSkillText.text = "Forging skill (level " + forgingSkillLevel + "): " + GetSkillCost(forgingSkillLevel) + " gold";
+    smeltingSkillText.text = "Smelting skill (level " + smeltingSkillLevel + "): " + GetSkillCost(smeltingSkillLevel) + " gold";
+    tradingSkillText.text = "Trading skill (level " + tradingSkillLevel + "): " + GetSkillCost(tradingSkillLevel) + " gold";
+    rareMaterialsText.text = "Rare materials: " + rareMaterials;
+    epicMaterialsText.text = "Epic materials: " + epicMaterials;
+    legendaryMaterialsText.text = "Legendary materials: " + legendaryMaterials;
+    buyAllText.text = "Buy all skills (" + (10 + 10 * buyAllCounter) + " gold)";
+
+// Produkcja mieczy
+float swordsPerSecondFloat = swordsPerSecond;
+if (spaceUpgrade.level > 0)
+{
+swordsPerSecondFloat *= spaceUpgrade.multiplier;
+}
+swordsPerSecondTimer += Time.deltaTime;
+while (swordsPerSecondTimer >= 1f / swordsPerSecondFloat)
+{
+swordsPerSecondTimer -= 1f / swordsPerSecondFloat;
+int swordValue = Random.Range(minSwordValue, maxSwordValue + 1);
+if (toolUpgrade.level > 0)
+{
+swordValue *= toolUpgrade.multiplier;
+}
+gold += swordValue;
+ProduceSword(swordValue);
+}
+
+// Funkcja ProduceSword z wartością miecza jako parametrem
+void ProduceSword(int swordValue)
+{
+// Kod, który tworzy miecz i dodaje go do inwentarza gracza
+}
+
+// Funkcja produkująca miecz i dodająca złoto
+private void ProduceSword()
+{
+    int value = swordValue;
+    // Losowanie prefiksu
+    float random = Random.value;
+   
+private int GetSkillCost(int level)
+{
+    int tens = Mathf.FloorToInt(level / 10f);
+    int units = level % 10;
+    int cost = (int)Mathf.Pow(10, tens) * (units + 1);
+    int bonusCost = units * cost;
+    return cost + bonusCost;
+}
+
+
+private float GetMaterialChance(int level, float rareChance, float epicChance, float legendaryChance)
+{
+float chance = rareChance * (1 + level * 0.05f);
+if (level >= 20)
+{
+chance += epicChance * (1 + (level - 20) * 0.01f);
+}
+else if (level >= 100)
+{
+chance += legendaryChance;
+}
+return chance;
+}
+
+private int GetMaterialValue(int level, int baseValue, int rareMultiplier, int epicMultiplier, int legendaryMultiplier)
+{
+    if (level >= 100)
+    {
+        return baseValue * legendaryMultiplier;
+    }
+    else if (level >= 21)
+    {
+        return baseValue * epicMultiplier;
+    }
+    else if (level >= 1)
+    {
+        return baseValue * rareMultiplier;
+    }
+    else
+    {
+        return baseValue;
+    }
+}
+
+
+private int GetSwordValue()
+{
+    int baseValue = swordValue;
+    if (toolsUpgrade.level > 0)
+    {
+        baseValue = (int)(baseValue * toolsUpgrade.multiplier);
+    }
+    int materialLevel = rareMaterials + epicMaterials + legendaryMaterials;
+    baseValue = GetMaterialValue(materialLevel, baseValue, 2, 5, 40);
+    return baseValue;
+}
+
+public void BuyAllSkills()
+{
+    bool boughtSkill = true;
+    while (boughtSkill)
+    {
+        boughtSkill = false;
+        int cheapestCost = int.MaxValue;
+        Upgrade cheapestUpgrade = null;
+
+        if (forgingSkillLevel < 100)
+        {
+            int cost = GetSkillCost(forgingSkillLevel);
+            if (cost < cheapestCost && CanBuySkill(cost))
+            {
+                cheapestCost = cost;
+                cheapestUpgrade = Upgrade.Forging;
+            }
+        }
+        if (smeltingSkillLevel < 100)
+        {
+            int cost = GetSkillCost(smeltingSkillLevel);
+            if (cost < cheapestCost && CanBuySkill(cost))
+            {
+                cheapestCost = cost;
+                cheapestUpgrade = Upgrade.Smelting;
+            }
+        }
+        if (tradingSkillLevel < 100)
+        {
+            int cost = GetSkillCost(tradingSkillLevel);
+            if (cost < cheapestCost && CanBuySkill(cost))
+            {
+                cheapestCost = cost;
+                cheapestUpgrade = Upgrade.Trading;
+            }
+        }
+
+        if (cheapestUpgrade != null)
+        {
+            BuySkill(cheapestUpgrade, cheapestCost);
+            boughtSkill = true;
+        }
+    }
+}
+
+private bool CanBuySkill(int cost)
+{
+    return gold >= cost;
+}
+
+private void BuySkill(Upgrade upgrade, int cost)
+{
+    gold -= cost;
+    switch (upgrade)
+    {
+        case Upgrade.Forging:
+            forgingSkillLevel++;
+            break;
+        case Upgrade.Smelting:
+            smeltingSkillLevel++;
+            break;
+        case Upgrade.Trading:
+            tradingSkillLevel++;
+            break;
+    }
+}
+
+
+// Funkcja kupująca narzędzia
+public void BuyToolsUpgrade()
+{
+if (gold >= toolsUpgrade.cost)
+{
+gold -= toolsUpgrade.cost;
+toolsUpgrade.level++;
+toolsUpgrade.cost = 100 + Mathf.RoundToInt(0.01f * toolsUpgrade.level * toolsUpgrade.cost);
+}
+}
+
+// Funkcja kupująca ulepszenie przestrzeni
+public void BuySpaceUpgrade()
+{
+if (gold >= spaceUpgrade.cost && spaceUpgrade.level < 3)
+{
+gold -= spaceUpgrade.cost;
+spaceUpgrade.level++;
+spaceUpgrade.cost = (spaceUpgrade.level == 1) ? 1000 : ((spaceUpgrade.level == 2) ? 15000 : 100000);
+}
+}
+
+// Funkcja kupująca ulepszenie materiałów
+public void BuyMaterialsUpgrade()
+{
+if (gold >= materialsUpgrade.cost)
+{
+gold -= materialsUpgrade.cost;
+materialsUpgrade.level++;
+materialsUpgrade.cost = 500 + Mathf.RoundToInt(0.05f * materialsUpgrade.level * materialsUpgrade.cost);
+rareMaterialsChance += 0.05f;
+if (rareMaterialsChance >= 1f)
+{
+rareMaterialsChance = 1f;
+}
+epicMaterialsChance += 0.01f;
+legendaryMaterialsChance += 0.005f;
+}
+}
+
+// Funkcja kupująca ulepszenie umiejętności kucia
+public void BuyForgingSkill()
+{
+int cost = GetSkillCost(forgingSkillLevel);
+if (gold >= cost)
+{
+gold -= cost;
+forgingSkillLevel++;
+swordValue = GetSwordValue();
+}
+}
+
+// Funkcja kupująca ulepszenie umiejętności wytapiania
+public void BuySmeltingSkill()
+{
+int cost = GetSkillCost(smeltingSkillLevel);
+if (gold >= cost)
+{
+gold -= cost;
+smeltingSkillLevel++;
+rareMaterialsChance += 0.01f;
+if (rareMaterialsChance >= 1f)
+{
+rareMaterialsChance = 1f;
+if (epicMaterialsChance < 1f)
+{
+epicMaterialsChance = 1f;
+}
+else if (legendaryMaterialsChance < 1f)
+{
+legendaryMaterialsChance = 1f;
+}
+}
+swordValue = GetSwordValue();
+}
+}
+
+// Funkcja kupująca ulepszenie umiejętności handlu
+public void BuyTradingSkill()
+{
+int cost = GetSkillCost(tradingSkillLevel);
+if (gold >= cost)
+{
+gold -= cost;
+tradingSkillLevel++;
+swordValue = GetSwordValue();
+toolsUpgrade.cost = Mathf.RoundToInt(toolsUpgrade.cost * 0.95f);
+spaceUpgrade.cost = Mathf.RoundToInt(spaceUpgrade.cost * 0.95f);
+materialsUpgrade.cost = Mathf.RoundToInt(materialsUpgrade.cost * 0.95f);
+}
+}
+
+// Funkcja obsługująca przycisk kup wszystkie umiejętności
+public void BuyAllSkillsButton()
+{
+int cost = 10 + 10 * buyAllCounter;
+while (gold >= cost && (forgingSkillLevel < 100 || smeltingSkillLevel < 100 || tradingSkillLevel < 100))
+{
+if (forgingSkillLevel < 100)
+{
+BuyForgingSkill();
+}
+if (smeltingSkillLevel < 100)
+{
+BuySmeltingSkill();
+}
+if (tradingSkillLevel < 100)
+{
+BuyTradingSkill();
+}
+}
+}
+// Funkcja obsługująca przycisk kupienia mieczy
+public void BuySwords(int amount)
+{
+int swordsBought = 0;
+int cost = swordValue;
+if (gold >= cost)
+{
+while (gold >= cost && swordsBought < amount)
+{
+gold -= cost;
+swordsBought++;
+}
+}
+swordValueText.text = "Sword value: " + swordValue;
+}
+
+// Funkcja obsługująca przycisk kupienia wielu mieczy
+public void BuyMultipleSwords()
+{
+int amount = 1;
+if (gold >= 10000 && gold < 100000)
+{
+amount = 2;
+}
+else if (gold >= 100000)
+{
+amount = 3;
+}
+BuySwords(amount);
+}
+
+// Funkcja obsługująca przycisk kupienia prywatnego raju
+public void BuyRetirement()
+{
+if (gold >= 1000000)
+{
+Debug.Log("Congratulations, you have retired!");
+Application.Quit();
+}
+}
+
+// Funkcja obsługująca przycisk kupienia wszystkich ulepszeń narzędzi, przestrzeni i materiałów
+public void BuyAllUpgrades()
+{
+    bool boughtUpgrade = true;
+    while (boughtUpgrade)
+    {
+        boughtUpgrade = false;
+        if (gold >= toolsUpgrade.cost && toolsUpgrade.level < 3)
+        {
+            BuyToolsUpgrade();
+            boughtUpgrade = true;
+        }
+        if (gold >= spaceUpgrade.cost && spaceUpgrade.level < 3)
+        {
+            BuySpaceUpgrade();
+            boughtUpgrade = true;
+        }
+        if (gold >= materialsUpgrade.cost)
+        {
+            BuyMaterialsUpgrade();
+            boughtUpgrade = true;
+        }
+    }
+}
+
+
+// Funkcja obsługująca przycisk kupienia wszystkiego
+public void BuyAll()
+{
+BuyAllUpgrades();
+BuyAllSkillsButton();
+BuyMultipleSwords();
+BuyRetirement();
+}
+
+// Funkcja wywoływana przy starcie gry
+private void Start()
+{
+swordValueText.text = "Sword value: " + swordValue;
+}
+// Funkcja obsługująca przycisk kupienia raju
+public void BuyRetirement()
+{
+    if (gold >= 1000000)
+    {
+        gold -= 1000000;
+        Debug.Log("You bought your retirement! Game over.");
+        Application.Quit(); // Zakończenie gry
+    }
+}
+
+// Funkcja obsługująca przycisk kup wszystkie umiejętności
+public void BuyAllSkillsButton()
+{
+    int cost = 10 + 10 * buyAllCounter;
+    while (gold >= cost && (forgingSkillLevel < 100 || smeltingSkillLevel < 100 || tradingSkillLevel < 100))
+    {
+        if (forgingSkillLevel < 100)
+        {
+            BuyForgingSkill();
+        }
+        if (smeltingSkillLevel < 100)
+        {
+            BuySmeltingSkill();
+        }
+        if (tradingSkillLevel < 100)
+        {
+            BuyTradingSkill();
+        }
+    }
+    buyAllCounter++;
+}
+
+// Funkcja obsługująca przycisk kupienia narzędzi
+public void ToolsUpgradeButton()
+{
+    BuyToolsUpgrade();
+    swordValue = GetSwordValue(); // Aktualizacja wartości miecza
+}
+
+// Funkcja obsługująca przycisk kupienia ulepszenia przestrzeni
+public void SpaceUpgradeButton()
+{
+    BuySpaceUpgrade();
+    swordsPerSecond = GetSwordsPerSecond(); // Aktualizacja ilości wyprodukowanych mieczy na sekundę
+}
+
+// Funkcja obsługująca przycisk kupienia ulepszenia materiałów
+public void MaterialsUpgradeButton()
+{
+    BuyMaterialsUpgrade();
+}
+
+// Funkcja obsługująca przycisk kupienia umiejętności kucia
+public void ForgingSkillButton()
+{
+    BuyForgingSkill();
+    swordValue = GetSwordValue(); // Aktualizacja wartości miecza
+}
+
+// Funkcja obsługująca przycisk kupienia umiejętności wytapiania
+public void SmeltingSkillButton()
+{
+    BuySmeltingSkill();
+    swordValue = GetSwordValue(); // Aktualizacja wartości miecza
+}
+
+// Funkcja obsługująca przycisk kupienia umiejętności handlu
+public void TradingSkillButton()
+{
+    BuyTradingSkill();
+    swordValue = GetSwordValue(); // Aktualizacja wartości miecza
+    toolsUpgrade.cost = Mathf.RoundToInt(toolsUpgrade.cost * 0.95f); // Zmniejszenie kosztu narzędzi
+    spaceUpgrade.cost = Mathf.RoundToInt(spaceUpgrade.cost * 0.95f); // Zmniejszenie kosztu ulepszenia przestrzeni
+    materialsUpgrade.cost = Mathf.RoundToInt(materialsUpgrade.cost * 0.95f); // Zmniejszenie kosztu ulepszenia materiałów
+}
