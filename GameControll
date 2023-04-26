@@ -482,5 +482,5 @@ public void TradingSkillButton()
     swordValue = GetSwordValue(); // Aktualizacja wartości miecza
     toolsUpgrade.cost = Mathf.RoundToInt(toolsUpgrade.cost * 0.95f); // Zmniejszenie kosztu narzędzi
     spaceUpgrade.cost = Mathf.RoundToInt(spaceUpgrade.cost * 0.95f); // Zmniejszenie kosztu ulepszenia przestrzeni
-    materialsUpgrade.cost = Mathf.RoundToInt(materialsUpgrade.cost * 0.95f); // Zmniejszenie kosztu ulepszenia materiałów
+    materialsUpgrade.cost = Mathf.RoundToInt(materialsUpgrade.cost * 0.95f); // Zmniejszenie kosztu ulepszenia materiałóww
 }
